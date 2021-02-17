@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon -r esm --inspect bot.js"
+        "dev": "nodemon -r esm --inspect bot.js",
+        "start": "node bot.js"
     },
     "author": "",
     "license": "ISC",
