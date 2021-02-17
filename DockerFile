@@ -1,0 +1,14 @@
+FROM node:15.8
+
+WORKDIR /usr/src/dc-bot
+
+COPY package*.json ./
+
+#RUN npm install
+RUN npm ci --only=production
+
+COPY . .
+
+EXPOSE 8888
+
+CMD [ "node", "server.js" ]
