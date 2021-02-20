@@ -23,8 +23,8 @@ export const sendMessage = (message, text, color = colors.blue) => {
 export const printTeams = (teams, message) => {
     teams.forEach((team, number) => {
         let party = ""
-        team.forEach((member, index) => {
-            party += `\t ${numbersEmojiArray[index]} ${member} \n`
+        team.forEach(({ user }, index) => {
+            party += `\t ${numbersEmojiArray[index]} ${user.username} \n`
         })
         const embed = new MessageEmbed()
             .setColor(colors.gold)
