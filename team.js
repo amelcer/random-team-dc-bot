@@ -1,12 +1,17 @@
-import { getChannel } from "./channel"
 import { colors, printTeams, sendMessage } from "./messages"
 import { getRandomIndexes } from "./randomizer"
 
-export const getTeams = async (message, teamsAmmount) => {
-    const channel = await getChannel(message)
+export const getTeams = (message, teamsAmmount) => {
+    const channel = message.member.voice.channel
+    if (!channel) {
+        sendMessage(message, `Dołącz do kanału z którego mam losować`, colors.red)
+        return
+    }
+
     const users = getUsers(channel)
+
     if (users.length === 0) {
-        sendMessage(message, `Brak użytkowników, obecnie ustawiony kanał to ${channel.name}`, colors.red)
+        sendMessage(message, `Brak użytkowników do losowania`, colors.red)
         return
     }
 
