@@ -1,12 +1,26 @@
-import { getChannel } from "./channel"
+import { getGuildMemberFromChannel, getVoiceChannelFromMessageAuthor, getVoiceChannels } from "./channels"
 import { colors, printTeams, sendMessage } from "./messages"
 import { getRandomIndexes } from "./randomizer"
 
-export const getTeams = async (message, teamsAmmount) => {
-    const channel = await getChannel(message)
-    const users = getUsers(channel)
+let voiceChannels = []
+let teams = []
+let timeout
+const timeToWait = 1000 * 60 * 5
+
+export const getTeams = (message, teamsAmmount) => {
+    clearTimeout(timeout)
+    const channel = getVoiceChannelFromMessageAuthor(message)
+    voiceChannels = getVoiceChannels(channel)
+
+    if (!channel) {
+        sendMessage(message, `Dołącz do kanału z którego mam losować`, colors.red)
+        return
+    }
+
+    const users = getGuildMemberFromChannel(channel)
+
     if (users.length === 0) {
-        sendMessage(message, `Brak użytkowników, obecnie ustawiony kanał to ${channel.name}`, colors.red)
+        sendMessage(message, `Brak użytkowników do losowania`, colors.red)
         return
     }
 
@@ -17,7 +31,7 @@ export const getTeams = async (message, teamsAmmount) => {
 
     const teamsSchedule = teamBreakDown(users.length, teamsAmmount)
     const drawnIndexes = []
-    let teams = []
+    teams = []
     teamsSchedule.forEach((ts) => {
         const randomIndexes = getRandomIndexes(ts, users.length, drawnIndexes)
         const team = randomIndexes.map((ind) => users[ind])
@@ -25,6 +39,18 @@ export const getTeams = async (message, teamsAmmount) => {
     })
 
     printTeams(teams, message)
+
+    if (teams.length < voiceChannels.length) {
+        sendMessage(
+            message,
+            "Przenieść zespoły do kanałów głosowych? 👉 Jeśli tak wpisz 👇 \n ``` rand move  ```",
+            colors.blue
+        )
+        timeout = setTimeout(() => {
+            voiceChannels = []
+            teams = []
+        }, timeToWait)
+    }
 }
 
 const teamBreakDown = (members, teamsAmmount) => {
@@ -44,6 +70,17 @@ const teamBreakDown = (members, teamsAmmount) => {
     return teams
 }
 
-const getUsers = ({ members }) => {
-    return members.map(({ user }) => user.username)
+export const moveTeams = (message) => {
+    if (voiceChannels.length == 0 || teams.length == 0) {
+        sendMessage(message, "Czas minął", colors.blue)
+        return
+    }
+
+    teams.forEach((team, teamNumber) => {
+        team.forEach((member) => {
+            member.voice.setChannel(voiceChannels[teamNumber])
+        })
+    })
+    teams = []
+    voiceChannels = []
 }

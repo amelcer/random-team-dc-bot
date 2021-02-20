@@ -2,10 +2,6 @@ import { MessageEmbed } from "discord.js"
 
 export const helpMessage = `
 Jestem botem do losowania drużyn ✌
-👉 Jeśli nie ustawiłeś kanału z którego mam losować członków ustaw go przy pomocy komendy 👇
-\`\`\` rand set nazwaKanału \`\`\`
-👉 Sprawdź nazwę kanału z którego są losowane zespoły 👇
-\`\`\` rand channel \`\`\`
 👉 Jeśli chcesz wylosować kilka zespółów wpisz 👇
 \`\`\` rand team ilośćZespołów  \`\`\`
 `
@@ -27,8 +23,8 @@ export const sendMessage = (message, text, color = colors.blue) => {
 export const printTeams = (teams, message) => {
     teams.forEach((team, number) => {
         let party = ""
-        team.forEach((member, index) => {
-            party += `\t ${numbersEmojiArray[index]} ${member} \n`
+        team.forEach(({ user }, index) => {
+            party += `\t ${numbersEmojiArray[index]} ${user.username} \n`
         })
         const embed = new MessageEmbed()
             .setColor(colors.gold)
